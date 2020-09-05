@@ -41,14 +41,6 @@ public class ServerData {
         return signInClients.containsKey(name);
     }
 
-    public int getSignedUpClientsSize() {
-        return signInClients.size();
-    }
-
-    public int getConnectedClientsNumber() {
-        return signInClients.size();
-    }
-
     public void newClientConnected() {
         System.out.println("New client connected");
         connectedClients++;
