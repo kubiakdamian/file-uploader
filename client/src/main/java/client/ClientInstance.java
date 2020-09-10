@@ -1,6 +1,7 @@
 package client;
 
 import client.server.ServerConnection;
+import common.model.ClientData;
 import common.model.Server;
 
 import java.io.IOException;
@@ -14,7 +15,8 @@ public class ClientInstance {
         Server server = new Server(args);
         Socket socket = new Socket(server.getHost(), server.getPort());
 
-        ServerConnection serverConnection = new ServerConnection(socket);
+        ClientData clientData = new ClientData();
+        ServerConnection serverConnection = new ServerConnection(socket, clientData);
 
         new Thread(serverConnection).start();
     }

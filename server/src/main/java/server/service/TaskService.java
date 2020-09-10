@@ -1,6 +1,6 @@
 package server.service;
 
-import common.model.Client;
+import common.model.ClientData;
 import common.model.Dictionary;
 import common.model.ServerResponse;
 import server.ServerData;
@@ -46,15 +46,24 @@ public class TaskService {
         String directoryPath = dividedTask[1];
 
         if (!serverData.checkIfClientAlreadyExists(name) && !serverData.checkIfDirectoryAlreadyExists(directoryPath)) {
-            Client client = new Client(name, directoryPath);
+            ClientData clientData = new ClientData(name, directoryPath);
             String path = Dictionary.DATABASE_PATH + "/" + directoryPath;
             Files.createDirectory(Paths.get(path));
 
-            serverData.signUpClient(name, client);
+            serverData.signUpClient(name, clientData);
             System.out.println("Signed up user with name: " + name);
             out.println(ServerResponse.SUCCESSFUL_SIGN_UP);
         } else {
             out.println(ServerResponse.FAILED_TO_SIGN_UP);
+        }
+    }
+
+    public void signOutUser() {
+        serverData.signOutClient(clientSocket);
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

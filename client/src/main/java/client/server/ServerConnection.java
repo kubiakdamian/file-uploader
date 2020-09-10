@@ -1,6 +1,7 @@
 package client.server;
 
 import client.service.TaskService;
+import common.model.ClientData;
 import common.model.ServerResponse;
 import common.model.TaskTypeFromClient;
 
@@ -18,11 +19,11 @@ public class ServerConnection implements Runnable {
 
     private boolean isLoggedIn;
 
-    public ServerConnection(Socket server) throws IOException {
+    public ServerConnection(Socket server, ClientData clientData) throws IOException {
         this.input = new BufferedReader(new InputStreamReader(server.getInputStream()));
         this.keyboard = new BufferedReader(new InputStreamReader(System.in));
         this.output = new PrintWriter(server.getOutputStream(), true);
-        this.taskService = new TaskService(input, keyboard, output);
+        this.taskService = new TaskService(input, keyboard, output, clientData);
     }
 
     @Override
@@ -69,7 +70,7 @@ public class ServerConnection implements Runnable {
     }
 
     private void sendNewTaskToServer() throws IOException {
-        System.out.print("Enter '1' to send a file\nEnter '2' to delete a file \nEnter '3' to print all files on server\n>");
+        System.out.print("Enter '1' to send a file\nEnter '2' to delete a file \nEnter '3' to print all files on server\nEnter '4' to sign out\n>");
         String taskNumber = keyboard.readLine();
 
         switch (taskNumber) {
@@ -83,6 +84,10 @@ public class ServerConnection implements Runnable {
 
             case "3":
                 taskService.printFiles();
+                break;
+
+            case "4":
+                taskService.signOut();
                 break;
 
             default:

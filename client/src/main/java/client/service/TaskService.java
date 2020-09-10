@@ -1,5 +1,7 @@
 package client.service;
 
+import client.ClientListener;
+import common.model.ClientData;
 import common.model.ServerResponse;
 import common.model.TaskTypeFromClient;
 
@@ -12,11 +14,15 @@ public class TaskService {
     private final BufferedReader input;
     private final BufferedReader keyboard;
     private final PrintWriter output;
+    private final ClientData clientData;
+    private final ClientListener clientListener;
 
-    public TaskService(BufferedReader input, BufferedReader keyboard, PrintWriter output) {
+    public TaskService(BufferedReader input, BufferedReader keyboard, PrintWriter output, ClientData clientData) {
         this.input = input;
         this.keyboard = keyboard;
         this.output = output;
+        this.clientData = clientData;
+        this.clientListener = new ClientListener();
     }
 
     public boolean signIn() throws IOException {
@@ -30,11 +36,17 @@ public class TaskService {
 
         if (serverResponse == ServerResponse.SUCCESSFUL_SIGN_IN) {
             System.out.println(ServerResponse.SUCCESSFUL_SIGN_IN.getMessage());
+            clientListener.start(clientData);
             return true;
         } else {
             System.out.println("Something went wrong, please try again");
             return false;
         }
+    }
+
+    public void signOut() {
+        //TODO signing out
+        System.out.println("Signing out...");
     }
 
     public void signUp() throws IOException {
@@ -47,6 +59,9 @@ public class TaskService {
         ServerResponse serverResponse = ServerResponse.valueOf(response);
 
         if (serverResponse == ServerResponse.SUCCESSFUL_SIGN_UP) {
+            String[] data = taskData.split(":");
+            clientData.setName(data[0]);
+            clientData.setDirectoryName(data[1]);
             System.out.println(ServerResponse.SUCCESSFUL_SIGN_UP.getMessage());
         } else {
             System.out.println("Something went wrong, please try again");

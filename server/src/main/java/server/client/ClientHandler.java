@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class ClientHandler implements Runnable {
+public class ClientHandler extends Thread {
     private final BufferedReader input;
     private final PrintWriter output;
     private final TaskService taskService;

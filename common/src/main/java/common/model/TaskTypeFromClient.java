@@ -7,6 +7,7 @@ public enum TaskTypeFromClient {
     DELETE_FILE("DELETE_FILE|"),
     CREATE_USER("CREATE_USER|"),
     SIGN_IN_USER("SIGN_IN_USER|"),
+    SIGN_OUT_USER("SIGN_OUT_USER|"),
     GET_FILES("GET_FILES|");
 
     private String taskPrefix;
