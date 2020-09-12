@@ -1,31 +1,37 @@
 package server.service;
 
-import common.model.ClientData;
 import common.model.Dictionary;
 import common.model.ServerResponse;
+import common.model.task.SignInUserTask;
+import common.model.task.SignUpUserTask;
+import common.model.task.Task;
 import server.ServerData;
+import server.client.ClientUtils;
+import server.model.Client;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class TaskService {
 
-    private final PrintWriter out;
+    private final ClientUtils clientUtils;
     private final ServerData serverData;
     private final Socket clientSocket;
 
-    public TaskService(PrintWriter out, ServerData serverData, Socket clientSocket) {
-        this.out = out;
+    public TaskService(ClientUtils clientUtils, ServerData serverData, Socket clientSocket) {
+        this.clientUtils = clientUtils;
         this.serverData = serverData;
         this.clientSocket = clientSocket;
     }
 
-    public void signInUser(String name) {
+    public void signInUser(Task request) {
+        SignInUserTask task = (SignInUserTask) request;
+        String name = task.getClientName();
+
         if (serverData.checkIfClientIsConnected(name)) {
-            out.println(ServerResponse.FAILED_TO_SIGN_IN);
+            clientUtils.sendResponse(ServerResponse.FAILED_TO_SIGN_IN);
         } else {
             signIn(name);
         }
@@ -34,27 +40,27 @@ public class TaskService {
     public void signIn(String name) {
         if (serverData.checkIfClientAlreadyExists(name)) {
             serverData.signInClient(name, clientSocket);
-            out.println(ServerResponse.SUCCESSFUL_SIGN_IN);
+            clientUtils.sendResponse(ServerResponse.SUCCESSFUL_SIGN_IN);
         } else {
-            out.println(ServerResponse.FAILED_TO_SIGN_IN);
+            clientUtils.sendResponse(ServerResponse.FAILED_TO_SIGN_IN);
         }
     }
 
-    public void signUpUser(String taskData) throws IOException {
-        String[] dividedTask = taskData.split(Dictionary.TASK_DIVIDER);
-        String name = dividedTask[0];
-        String directoryPath = dividedTask[1];
+    public void signUpUser(Task request) throws IOException {
+        SignUpUserTask task = (SignUpUserTask) request;
+        String userName = task.getUserName();
+        String directoryName = task.getDirectoryName();
 
-        if (!serverData.checkIfClientAlreadyExists(name) && !serverData.checkIfDirectoryAlreadyExists(directoryPath)) {
-            ClientData clientData = new ClientData(name, directoryPath);
-            String path = Dictionary.DATABASE_PATH + "/" + directoryPath;
+        if (!serverData.checkIfClientAlreadyExists(userName) && !serverData.checkIfDirectoryAlreadyExists(directoryName)) {
+            Client client = new Client(userName, directoryName);
+            String path = Dictionary.DATABASE_PATH + "/" + directoryName;
             Files.createDirectory(Paths.get(path));
 
-            serverData.signUpClient(name, clientData);
-            System.out.println("Signed up user with name: " + name);
-            out.println(ServerResponse.SUCCESSFUL_SIGN_UP);
+            serverData.signUpClient(userName, client);
+            System.out.println("Signed up user with name: " + userName);
+            clientUtils.sendResponse(ServerResponse.SUCCESSFUL_SIGN_UP);
         } else {
-            out.println(ServerResponse.FAILED_TO_SIGN_UP);
+            clientUtils.sendResponse(ServerResponse.FAILED_TO_SIGN_UP);
         }
     }
 
@@ -67,15 +73,15 @@ public class TaskService {
         }
     }
 
-    public void addFile(String taskData) {
+    public void addFile(Task taskData) {
         System.out.println("Creating file...");
     }
 
-    public void deleteFile(String taskData) {
+    public void deleteFile(Task taskData) {
         System.out.println("Removing file...");
     }
 
-    public void getFiles(String taskData) {
+    public void getFiles(Task taskData) {
         System.out.println("Get all files...");
     }
 }

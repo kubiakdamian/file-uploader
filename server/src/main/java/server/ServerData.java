@@ -1,6 +1,6 @@
 package server;
 
-import common.model.ClientData;
+import server.model.Client;
 
 import java.net.Socket;
 import java.util.HashMap;
@@ -9,12 +9,12 @@ import java.util.stream.Collectors;
 
 public class ServerData {
 
-    private final Map<String, ClientData> signedUpClients = new HashMap<>();
+    private final Map<String, Client> signedUpClients = new HashMap<>();
     private final Map<String, Socket> signedInClients = new HashMap<>();
     private int connectedClients = 0;
 
-    public void signUpClient(String name, ClientData clientData) {
-        signedUpClients.put(name, clientData);
+    public void signUpClient(String name, Client client) {
+        signedUpClients.put(name, client);
         System.out.println("Signed up clients: " + signedUpClients.size());
     }
 
@@ -36,8 +36,8 @@ public class ServerData {
     }
 
     public boolean checkIfDirectoryAlreadyExists(String name) {
-        for (ClientData clientData : signedUpClients.values()) {
-            if (clientData.getDirectoryName().equals(name)) {
+        for (Client client : signedUpClients.values()) {
+            if (client.getDirectoryName().equals(name)) {
                 return true;
             }
         }

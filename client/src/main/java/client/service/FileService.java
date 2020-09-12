@@ -1,7 +1,8 @@
 package client.service;
 
-import common.model.ClientData;
+import client.ClientData;
 import common.model.Dictionary;
+import common.model.file.File;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -17,9 +18,11 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 public class FileService extends Thread {
 
     private final ClientData clientData;
+    private final FileSender fileSender;
 
     public FileService(ClientData clientData) {
         this.clientData = clientData;
+        this.fileSender = new FileSender(clientData);
     }
 
     @Override
@@ -33,13 +36,33 @@ public class FileService extends Thread {
                 while (pool) {
                     WatchKey watchKey = watchService.take();
                     for (WatchEvent<?> event : watchKey.pollEvents()) {
-                        System.out.println("Event kind : " + event.kind() + " - File : " + event.context());
+                        if (event.context().toString().contains("#")) {
+                            System.out.println(event.kind() + " - File : " + event.context());
+                            processFile(event);
+                        }
                     }
                     pool = watchKey.reset();
                 }
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void processFile(WatchEvent<?> event) {
+        String eventType = event.kind().toString();
+        String clientFile = event.context().toString();
+        clientFile = clientFile.replace(".txt", "");
+        String[] fileParts = clientFile.split("#");
+
+        File file = new File(fileParts[0], Integer.parseInt(fileParts[1]));
+
+        if (eventType.equals("ENTRY_CREATE")) {
+            file.setType(File.Type.CREATE);
+            fileSender.addFile(file);
+        } else if (eventType.equals("ENTRY_DELETE")) {
+            file.setType(File.Type.DELETE);
+            fileSender.addFile(file);
         }
     }
 }

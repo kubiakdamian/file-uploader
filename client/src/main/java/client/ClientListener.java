@@ -1,7 +1,6 @@
 package client;
 
 import client.service.FileService;
-import common.model.ClientData;
 
 public class ClientListener {
 

@@ -1,38 +1,33 @@
 package client.server;
 
+import client.ClientData;
 import client.service.TaskService;
-import common.model.ClientData;
 import common.model.ServerResponse;
-import common.model.TaskTypeFromClient;
+import common.model.task.ClientEntranceTask;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 public class ServerConnection implements Runnable {
-    private final BufferedReader input;
     private final BufferedReader keyboard;
-    private final PrintWriter output;
     private final TaskService taskService;
+    private final ClientData clientData;
 
     private boolean isLoggedIn;
 
-    public ServerConnection(Socket server, ClientData clientData) throws IOException {
-        this.input = new BufferedReader(new InputStreamReader(server.getInputStream()));
+    public ServerConnection(ClientData clientData) {
         this.keyboard = new BufferedReader(new InputStreamReader(System.in));
-        this.output = new PrintWriter(server.getOutputStream(), true);
-        this.taskService = new TaskService(input, keyboard, output, clientData);
+        this.taskService = new TaskService(keyboard, clientData);
+        this.clientData = clientData;
     }
 
     @Override
     public void run() {
-        output.println(TaskTypeFromClient.CLIENT_ENTRANCE.getTaskPrefix());
+        clientData.getServerUtils().sendTask(new ClientEntranceTask());
         try {
             while (true) {
-                String response = input.readLine();
-                ServerResponse serverResponse = ServerResponse.valueOf(response);
+                ServerResponse serverResponse = clientData.getServerUtils().fetchServerResponse();
                 if (serverResponse == ServerResponse.HI) {
                     init();
                 }
@@ -42,7 +37,7 @@ public class ServerConnection implements Runnable {
             e.printStackTrace();
         } finally {
             try {
-                input.close();
+                clientData.getServerUtils().getInput().close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -70,23 +65,11 @@ public class ServerConnection implements Runnable {
     }
 
     private void sendNewTaskToServer() throws IOException {
-        System.out.print("Enter '1' to send a file\nEnter '2' to delete a file \nEnter '3' to print all files on server\nEnter '4' to sign out\n>");
+        System.out.print("Enter '1' to sign out\n>");
         String taskNumber = keyboard.readLine();
 
         switch (taskNumber) {
             case "1":
-                taskService.sendFile();
-                break;
-
-            case "2":
-                taskService.deleteFile();
-                break;
-
-            case "3":
-                taskService.printFiles();
-                break;
-
-            case "4":
                 taskService.signOut();
                 break;
 

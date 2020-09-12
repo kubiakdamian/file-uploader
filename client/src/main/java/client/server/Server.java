@@ -1,4 +1,4 @@
-package common.model;
+package client.server;
 
 import lombok.Getter;
 

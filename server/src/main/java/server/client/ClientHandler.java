@@ -1,76 +1,76 @@
 package server.client;
 
 import common.model.ServerResponse;
-import common.model.TaskTypeFromClient;
+import common.model.task.Task;
+import common.model.task.TaskTypeFromClient;
 import server.ServerData;
 import server.service.TaskService;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ClientHandler extends Thread {
-    private final BufferedReader input;
-    private final PrintWriter output;
+    private final ClientUtils clientUtils;
     private final TaskService taskService;
 
     public ClientHandler(Socket clientSocket, ServerData serverData) throws IOException {
-        this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        this.output = new PrintWriter(clientSocket.getOutputStream(), true);
-        this.taskService = new TaskService(output, serverData, clientSocket);
+        this.clientUtils = new ClientUtils(clientSocket);
+        this.taskService = new TaskService(clientUtils, serverData, clientSocket);
     }
 
     @Override
     public void run() {
         try {
             while (true) {
-                String request = input.readLine();
+                Task request = clientUtils.fetchClientTask();
                 processRequest(request);
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            output.close();
-            try {
-                input.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            closeClientConnections();
         }
     }
 
-    private void processRequest(String request) throws IOException {
-        int requestDividerIndex = request.indexOf("|");
-        String requestTaskType = request.substring(0, requestDividerIndex);
-        String taskData = request.substring(requestDividerIndex + 1);
+    private void closeClientConnections() {
+        try {
+            clientUtils.getOutput().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            clientUtils.getInput().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-        TaskTypeFromClient taskTypeFromClient = TaskTypeFromClient.valueOf(requestTaskType);
+    private void processRequest(Task request) throws IOException {
+        TaskTypeFromClient taskType = request.getTaskType();
 
-        switch (taskTypeFromClient) {
+        switch (taskType) {
             case CLIENT_ENTRANCE:
-                output.println(ServerResponse.HI);
+                clientUtils.sendResponse(ServerResponse.HI);
                 break;
 
             case CREATE_USER:
-                taskService.signUpUser(taskData);
+                taskService.signUpUser(request);
                 break;
 
             case SIGN_IN_USER:
-                taskService.signInUser(taskData);
+                taskService.signInUser(request);
                 break;
 
             case ADD_FILE:
-                taskService.addFile(taskData);
+                taskService.addFile(request);
                 break;
 
             case DELETE_FILE:
-                taskService.deleteFile(taskData);
+                taskService.deleteFile(request);
                 break;
 
             case GET_FILES:
-                taskService.getFiles(taskData);
+                taskService.getFiles(request);
                 break;
 
             default:
