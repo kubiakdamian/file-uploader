@@ -1,13 +1,16 @@
 package client.service;
 
-import client.ClientListener;
 import client.ClientData;
+import client.ClientListener;
+import common.model.Dictionary;
 import common.model.ServerResponse;
 import common.model.task.SignInUserTask;
 import common.model.task.SignUpUserTask;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class TaskService {
 
@@ -59,10 +62,15 @@ public class TaskService {
         if (serverResponse == ServerResponse.SUCCESSFUL_SIGN_UP) {
             clientData.setName(userName);
             clientData.setDirectoryName(directoryName);
-
+            createDirectory(directoryName);
             System.out.println(ServerResponse.SUCCESSFUL_SIGN_UP.getMessage());
         } else {
             System.out.println("Something went wrong, please try again");
         }
+    }
+
+    private void createDirectory(String directoryName) throws IOException {
+        String path = Dictionary.CLIENTS_DIRECTORY + "/" + directoryName;
+        Files.createDirectory(Paths.get(path));
     }
 }

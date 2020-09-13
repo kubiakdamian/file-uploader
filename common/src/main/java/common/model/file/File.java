@@ -3,9 +3,11 @@ package common.model.file;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
-public class File {
+public class File implements Serializable {
 
     private String name;
     private int size;

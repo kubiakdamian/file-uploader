@@ -55,6 +55,10 @@ public class ServerData {
         System.out.println("Currently connected clients: " + connectedClients);
     }
 
+    public Client getClientByName(String name) {
+        return signedUpClients.get(name);
+    }
+
     private String findNameBySocket(Socket socket) {
         return signedInClients.entrySet()
                 .stream()

@@ -15,6 +15,7 @@ public class ClientUtils {
 
     private final ObjectInputStream input;
     private final ObjectOutputStream output;
+    private String clientName;
 
     public ClientUtils(Socket clientSocket) throws IOException {
         this.output = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -40,5 +41,9 @@ public class ClientUtils {
         }
 
         return task;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
     }
 }

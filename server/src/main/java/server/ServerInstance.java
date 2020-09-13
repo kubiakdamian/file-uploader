@@ -34,8 +34,8 @@ public class ServerInstance {
     }
 
     private void createFolderForFiles() throws IOException {
-        if (Files.notExists(Paths.get(Dictionary.DATABASE_PATH))) {
-            Files.createDirectory(Paths.get(Dictionary.DATABASE_PATH));
+        if (Files.notExists(Paths.get(Dictionary.SERVER_DIRECTORY))) {
+            Files.createDirectory(Paths.get(Dictionary.SERVER_DIRECTORY));
         }
     }
 }

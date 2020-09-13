@@ -5,8 +5,10 @@ import common.model.ServerResponse;
 import common.model.task.SignInUserTask;
 import common.model.task.SignUpUserTask;
 import common.model.task.Task;
+import common.model.task.TaskWithFile;
 import server.ServerData;
 import server.client.ClientUtils;
+import server.client.FileToProcess;
 import server.model.Client;
 
 import java.io.IOException;
@@ -40,6 +42,7 @@ public class TaskService {
     public void signIn(String name) {
         if (serverData.checkIfClientAlreadyExists(name)) {
             serverData.signInClient(name, clientSocket);
+            clientUtils.setClientName(name);
             clientUtils.sendResponse(ServerResponse.SUCCESSFUL_SIGN_IN);
         } else {
             clientUtils.sendResponse(ServerResponse.FAILED_TO_SIGN_IN);
@@ -53,7 +56,7 @@ public class TaskService {
 
         if (!serverData.checkIfClientAlreadyExists(userName) && !serverData.checkIfDirectoryAlreadyExists(directoryName)) {
             Client client = new Client(userName, directoryName);
-            String path = Dictionary.DATABASE_PATH + "/" + directoryName;
+            String path = Dictionary.SERVER_DIRECTORY + "/" + directoryName;
             Files.createDirectory(Paths.get(path));
 
             serverData.signUpClient(userName, client);
@@ -74,7 +77,8 @@ public class TaskService {
     }
 
     public void addFile(Task taskData) {
-        System.out.println("Creating file...");
+        FileToProcess fileToProcess = new FileToProcess((TaskWithFile) taskData, clientUtils, serverData);
+        fileToProcess.start();
     }
 
     public void deleteFile(Task taskData) {

@@ -1,6 +1,7 @@
 package client.service;
 
 import client.ClientData;
+import client.FilesToSend;
 import common.model.Dictionary;
 import common.model.file.File;
 
@@ -18,11 +19,9 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 public class FileService extends Thread {
 
     private final ClientData clientData;
-    private final FileSender fileSender;
 
     public FileService(ClientData clientData) {
         this.clientData = clientData;
-        this.fileSender = new FileSender(clientData);
     }
 
     @Override
@@ -30,7 +29,7 @@ public class FileService extends Thread {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 WatchService watchService = FileSystems.getDefault().newWatchService();
-                Path path = Paths.get(Dictionary.DATABASE_PATH + "/" + clientData.getDirectoryName());
+                Path path = Paths.get(Dictionary.CLIENTS_DIRECTORY + "/" + clientData.getDirectoryName());
                 path.register(watchService, ENTRY_CREATE, ENTRY_DELETE);
                 boolean pool = true;
                 while (pool) {
@@ -59,10 +58,10 @@ public class FileService extends Thread {
 
         if (eventType.equals("ENTRY_CREATE")) {
             file.setType(File.Type.CREATE);
-            fileSender.addFile(file);
+            FilesToSend.addFile(file);
         } else if (eventType.equals("ENTRY_DELETE")) {
             file.setType(File.Type.DELETE);
-            fileSender.addFile(file);
+            FilesToSend.addFile(file);
         }
     }
 }
