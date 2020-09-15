@@ -33,6 +33,19 @@ public class FileToProcess extends Thread {
         } else if (task.getTaskType() == TaskTypeFromClient.DELETE_FILE) {
             deleteFile();
         }
+
+        if (isStopped) {
+            resumeProcessing();
+        }
+    }
+
+    public void stopProcessing() {
+        this.isStopped = true;
+    }
+
+    public void resumeProcessing() {
+        this.isStopped = false;
+        notify();
     }
 
     private void addFile() {

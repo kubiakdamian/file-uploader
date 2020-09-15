@@ -23,6 +23,9 @@ public class ServerInstance {
         ServerSocket server = new ServerSocket(port);
         ServerData serverData = new ServerData();
 
+        FileProcessingScheduler fileProcessingScheduler = new FileProcessingScheduler();
+        fileProcessingScheduler.start();
+
         System.out.println("Server running...");
 
         while (true) {

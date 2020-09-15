@@ -6,6 +6,7 @@ import common.model.task.SignInUserTask;
 import common.model.task.SignUpUserTask;
 import common.model.task.Task;
 import common.model.task.TaskWithFile;
+import server.QueuedFiles;
 import server.ServerData;
 import server.client.ClientUtils;
 import server.client.FileToProcess;
@@ -78,7 +79,7 @@ public class TaskService {
 
     public void addFile(Task taskData) {
         FileToProcess fileToProcess = new FileToProcess((TaskWithFile) taskData, clientUtils, serverData);
-        fileToProcess.start();
+        QueuedFiles.addFileToProcess(fileToProcess);
     }
 
     public void deleteFile(Task taskData) {
