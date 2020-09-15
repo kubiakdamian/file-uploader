@@ -5,6 +5,7 @@ import common.model.ServerResponse;
 import common.model.task.TaskTypeFromClient;
 import common.model.task.TaskWithFile;
 import lombok.Getter;
+import server.QueuedFiles;
 import server.ServerData;
 import server.model.Client;
 import server.simulator.FileProcessingSimulator;
@@ -33,17 +34,13 @@ public class FileToProcess extends Thread {
         } else if (task.getTaskType() == TaskTypeFromClient.DELETE_FILE) {
             deleteFile();
         }
-
-        if (isStopped) {
-            resumeProcessing();
-        }
     }
 
-    public void stopProcessing() {
+    public synchronized void stopProcessing() {
         this.isStopped = true;
     }
 
-    public void resumeProcessing() {
+    public synchronized void resumeProcessing() {
         this.isStopped = false;
         notify();
     }
@@ -54,6 +51,7 @@ public class FileToProcess extends Thread {
             createFileOnServer();
             System.out.println("New file added: " + task.getFilename() + " client: " + clientUtils.getClientName());
             clientUtils.sendResponse(ServerResponse.FILE_SEND_SUCCESSFULLY);
+            QueuedFiles.removeAlreadyProcessingFile(this);
         } catch (IOException e) {
             e.printStackTrace();
             clientUtils.sendResponse(ServerResponse.FAILED_TO_SEND_FILE);

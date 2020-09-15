@@ -1,6 +1,5 @@
 package server;
 
-import common.exception.FileUploaderException;
 import server.client.FileToProcess;
 
 import java.util.Optional;
@@ -23,7 +22,7 @@ public class FilesToProcess {
 
     public void removeFile(FileToProcess file) {
         writeLock();
-        files.add(file);
+        files.remove(file);
         writeUnlock();
     }
 
@@ -35,20 +34,13 @@ public class FilesToProcess {
         return fileToProcess;
     }
 
-    public FileToProcess fetchHighPriorityFile() {
-        readLock();
-        Optional<FileToProcess> fileToProcess = files.stream().filter(file -> file.getTask().isFilePriorityHigh()).findFirst();
-        readUnlock();
-
-        return fileToProcess.orElseThrow(() -> new FileUploaderException("Couldn't find file"));
-    }
-
     public FileToProcess fetchLowPriorityFile() {
         readLock();
         Optional<FileToProcess> fileToProcess = files.stream().filter(file -> !file.getTask().isFilePriorityHigh()).findFirst();
+        fileToProcess.ifPresent(files::remove);
         readUnlock();
 
-        return fileToProcess.orElseThrow(() -> new FileUploaderException("Couldn't find file"));
+        return fileToProcess.get();
     }
 
     public boolean doesContainLowPriorityTask() {

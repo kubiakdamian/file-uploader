@@ -1,41 +1,51 @@
 package server;
 
-import lombok.Getter;
 import server.client.FileToProcess;
 
-@Getter
 public class QueuedFiles {
 
-    private static final FilesToProcess filesToProcess = new FilesToProcess();
+    private static final FilesToProcess highPriorityFiles = new FilesToProcess();
+
+    private static final FilesToProcess lowPriorityFiles = new FilesToProcess();
+
+    private static final FilesToProcess stoppedFiles = new FilesToProcess();
 
     private static final FilesToProcess currentlyProcessingFiles = new FilesToProcess();
 
     public static void addFileToProcess(FileToProcess fileToProcess) {
-        filesToProcess.addFile(fileToProcess);
+        if (fileToProcess.getTask().isFilePriorityHigh()) {
+            highPriorityFiles.addFile(fileToProcess);
+        } else if (!fileToProcess.getTask().isFilePriorityHigh()) {
+            lowPriorityFiles.addFile(fileToProcess);
+        }
     }
 
-    public static void removeFileToProcess(FileToProcess fileToProcess) {
-        filesToProcess.removeFile(fileToProcess);
+    public static FileToProcess fetchFileToProcess() {
+        if (highPriorityFiles.size() > 0) {
+            return highPriorityFiles.fetchFile();
+        } else if (stoppedFiles.size() > 0) {
+            return stoppedFiles.fetchFile();
+        } else if (lowPriorityFiles.size() > 0) {
+            return lowPriorityFiles.fetchFile();
+        }
+
+        return null;
     }
 
-    public static void addAlreadyProcessingFile(FileToProcess fileToProcess) {
+    public static void addCurrentlyProcessingFile(FileToProcess fileToProcess) {
         currentlyProcessingFiles.addFile(fileToProcess);
+    }
+
+    public static void addStoppedFile(FileToProcess fileToProcess) {
+        stoppedFiles.addFile(fileToProcess);
     }
 
     public static void removeAlreadyProcessingFile(FileToProcess fileToProcess) {
         currentlyProcessingFiles.removeFile(fileToProcess);
     }
 
-    public static FilesToProcess getFilesToProcess() {
-        return filesToProcess;
-    }
-
-    public static FilesToProcess getCurrentlyProcessingFiles() {
-        return currentlyProcessingFiles;
-    }
-
-    public static int sizeOfFilesToProcess() {
-        return filesToProcess.size();
+    public static FileToProcess fetchLowPriorityTaskFromCurrentlyProcessingFiles() {
+        return currentlyProcessingFiles.fetchLowPriorityFile();
     }
 
     public static int sizeOfAlreadyProcessingFiles() {
@@ -44,5 +54,9 @@ public class QueuedFiles {
 
     public static boolean doesCurrentlyProcessingFilesContainLowPriorityTask() {
         return currentlyProcessingFiles.doesContainLowPriorityTask();
+    }
+
+    public static boolean doesHighPriorityTaskExist() {
+        return highPriorityFiles.size() > 0;
     }
 }

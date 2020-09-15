@@ -33,7 +33,7 @@ public class File implements Serializable {
     }
 
     private FilePriority getPriorityBySize(int size) {
-        if (size < 5) {
+        if (size < 30) {
             return FilePriority.HIGH;
         }
 
