@@ -1,6 +1,6 @@
 package server.client;
 
-import common.model.ServerResponse;
+import common.model.serverResponse.ServerResponse;
 import common.model.task.Task;
 import common.model.task.TaskTypeFromClient;
 import server.ServerData;
@@ -71,8 +71,12 @@ public class ClientHandler extends Thread {
                 taskService.deleteFile(request);
                 break;
 
-            case GET_FILES:
-                taskService.getFiles(request);
+            case GET_FILENAMES:
+                taskService.getFileNames();
+                break;
+
+            case FILES_SYNCHRONIZED:
+                clientUtils.sendResponse(ServerResponse.ALL_FILES_SYNCHRONIZED);
                 break;
 
             case SIGN_OUT_USER:

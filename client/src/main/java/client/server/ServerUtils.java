@@ -1,8 +1,9 @@
 package client.server;
 
 import common.exception.FileUploaderException;
-import common.model.ServerResponse;
-import common.model.SignInServerResponse;
+import common.model.serverResponse.FilesOnServerResponse;
+import common.model.serverResponse.ServerResponse;
+import common.model.serverResponse.SignInServerResponse;
 import common.model.task.Task;
 import lombok.Getter;
 
@@ -56,6 +57,20 @@ public class ServerUtils {
         }
 
         return signInServerResponse;
+    }
+
+    public FilesOnServerResponse fetchFilesFromServer() {
+        FilesOnServerResponse filesOnServerResponse;
+
+        try {
+            filesOnServerResponse = (FilesOnServerResponse) input.readObject();
+        } catch (ClassCastException classCastException) {
+            return null;
+        } catch (IOException | ClassNotFoundException e) {
+            throw new FileUploaderException("Couldn't fetch server response");
+        }
+
+        return filesOnServerResponse;
     }
 
     public void closeConnection() {

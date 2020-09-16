@@ -1,8 +1,9 @@
 package server.service;
 
 import common.model.Dictionary;
-import common.model.ServerResponse;
-import common.model.SignInServerResponse;
+import common.model.serverResponse.FilesOnServerResponse;
+import common.model.serverResponse.ServerResponse;
+import common.model.serverResponse.SignInServerResponse;
 import common.model.task.SignInUserTask;
 import common.model.task.SignUpUserTask;
 import common.model.task.Task;
@@ -13,10 +14,14 @@ import server.client.ClientUtils;
 import server.client.FileToProcess;
 import server.model.Client;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class TaskService {
 
@@ -81,8 +86,13 @@ public class TaskService {
     }
 
     public void addFile(Task taskData) {
-        FileToProcess fileToProcess = new FileToProcess((TaskWithFile) taskData, clientUtils, serverData);
-        QueuedFiles.addFileToProcess(fileToProcess);
+        TaskWithFile taskWithFile = (TaskWithFile) taskData;
+        List<String> files = getFiles();
+
+        if (!files.contains(taskWithFile.getFile().getFullName())) {
+            FileToProcess fileToProcess = new FileToProcess(taskWithFile, clientUtils, serverData);
+            QueuedFiles.addFileToProcess(fileToProcess);
+        }
     }
 
     public void deleteFile(Task taskData) {
@@ -90,7 +100,25 @@ public class TaskService {
         QueuedFiles.addFileToProcess(fileToProcess);
     }
 
-    public void getFiles(Task taskData) {
-        System.out.println("Get all files...");
+    public void getFileNames() {
+        List<String> files = getFiles();
+        FilesOnServerResponse filesOnServerResponse = new FilesOnServerResponse(files);
+        clientUtils.sendFilesOnServerResponse(filesOnServerResponse);
+        clientUtils.sendResponse(ServerResponse.FILE_SENT_SUCCESSFULLY);
+    }
+
+    private List<String> getFiles() {
+        Client client = serverData.getClientByName(clientUtils.getClientName());
+        String directoryName = client.getDirectoryName();
+        String path = Dictionary.SERVER_DIRECTORY + "/" + directoryName;
+
+        File[] files = new File(path).listFiles();
+        List<String> filesOnServer = new ArrayList<>();
+
+        for (File file : Objects.requireNonNull(files)) {
+            filesOnServer.add(file.getName());
+        }
+
+        return filesOnServer;
     }
 }

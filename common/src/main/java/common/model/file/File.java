@@ -32,6 +32,10 @@ public class File implements Serializable {
         return type == Type.DELETE;
     }
 
+    public String getFullName() {
+        return name + "#" + size + ".txt";
+    }
+
     private FilePriority getPriorityBySize(int size) {
         if (size < 30) {
             return FilePriority.HIGH;

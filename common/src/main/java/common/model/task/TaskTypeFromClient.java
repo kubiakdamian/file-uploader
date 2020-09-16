@@ -8,5 +8,6 @@ public enum TaskTypeFromClient {
     CREATE_USER,
     SIGN_IN_USER,
     SIGN_OUT_USER,
-    GET_FILES
+    GET_FILENAMES,
+    FILES_SYNCHRONIZED
 }

@@ -2,7 +2,7 @@ package client.service;
 
 import client.ClientData;
 import client.FilesToSend;
-import common.model.ServerResponse;
+import common.model.serverResponse.ServerResponse;
 import common.model.file.File;
 import common.model.task.DeleteFileTask;
 import common.model.task.SendFileTask;

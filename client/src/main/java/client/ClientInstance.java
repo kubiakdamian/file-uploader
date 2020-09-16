@@ -1,7 +1,7 @@
 package client;
 
-import client.server.ServerConnection;
 import client.server.Server;
+import client.server.ServerConnection;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -16,6 +16,9 @@ public class ClientInstance {
 
         ClientData clientData = new ClientData(socket);
         ServerConnection serverConnection = new ServerConnection(clientData);
+
+        FileProcessingScheduler fileProcessingScheduler = new FileProcessingScheduler();
+        fileProcessingScheduler.start();
 
         new Thread(serverConnection).start();
     }

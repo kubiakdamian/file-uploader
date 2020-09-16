@@ -2,7 +2,7 @@ package client.server;
 
 import client.ClientData;
 import client.service.TaskService;
-import common.model.ServerResponse;
+import common.model.serverResponse.ServerResponse;
 import common.model.task.ClientEntranceTask;
 
 import java.io.BufferedReader;
@@ -65,12 +65,20 @@ public class ServerConnection implements Runnable {
     }
 
     private void sendNewTaskToServer() throws IOException {
-        System.out.print("Enter '1' to sign out\n>");
+        System.out.print("Enter '1' to sign out\nEnter '2' to print files from server\nEnter '3' to synchronize files with server\n>");
         String taskNumber = keyboard.readLine();
 
         switch (taskNumber) {
             case "1":
                 taskService.signOut();
+                break;
+
+            case "2":
+                taskService.printFilesFromServer();
+                break;
+
+            case "3":
+                taskService.synchronizeFilesWithServer();
                 break;
 
             default:

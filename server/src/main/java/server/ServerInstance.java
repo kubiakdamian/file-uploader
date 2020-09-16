@@ -40,5 +40,9 @@ public class ServerInstance {
         if (Files.notExists(Paths.get(Dictionary.SERVER_DIRECTORY))) {
             Files.createDirectory(Paths.get(Dictionary.SERVER_DIRECTORY));
         }
+
+        if (Files.notExists(Paths.get(Dictionary.CLIENTS_DIRECTORY))) {
+            Files.createDirectory(Paths.get(Dictionary.CLIENTS_DIRECTORY));
+        }
     }
 }

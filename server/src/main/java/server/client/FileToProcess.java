@@ -1,7 +1,7 @@
 package server.client;
 
 import common.model.Dictionary;
-import common.model.ServerResponse;
+import common.model.serverResponse.ServerResponse;
 import common.model.task.TaskTypeFromClient;
 import common.model.task.TaskWithFile;
 import lombok.Getter;

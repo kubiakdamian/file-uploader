@@ -2,17 +2,25 @@ package client.service;
 
 import client.ClientData;
 import client.ClientListener;
+import client.FileToProcess;
+import client.QueuedFiles;
 import common.model.Dictionary;
-import common.model.ServerResponse;
-import common.model.SignInServerResponse;
+import common.model.serverResponse.FilesOnServerResponse;
+import common.model.serverResponse.ServerResponse;
+import common.model.serverResponse.SignInServerResponse;
+import common.model.task.GetFilenamesTask;
 import common.model.task.SignInUserTask;
 import common.model.task.SignOutUserTask;
 import common.model.task.SignUpUserTask;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class TaskService {
 
@@ -75,8 +83,71 @@ public class TaskService {
         }
     }
 
+    public void printFilesFromServer() {
+        GetFilenamesTask getFilenamesTask = new GetFilenamesTask();
+        clientData.getServerUtils().sendTask(getFilenamesTask);
+
+        FilesOnServerResponse filesOnServerResponse = clientData.getServerUtils().fetchFilesFromServer();
+
+        if (filesOnServerResponse != null) {
+            for (String filename : filesOnServerResponse.getFiles()) {
+                System.out.println(filename);
+            }
+        } else {
+            System.out.println("Server directory is empty");
+        }
+    }
+
+    public void synchronizeFilesWithServer() {
+        GetFilenamesTask getFilenamesTask = new GetFilenamesTask();
+        clientData.getServerUtils().sendTask(getFilenamesTask);
+        FilesOnServerResponse filesOnServerResponse = clientData.getServerUtils().fetchFilesFromServer();
+
+        if (filesOnServerResponse != null) {
+            System.out.println("Synchronizing files with server. Please wait...");
+            List<String> localFiles = getLocalFiles();
+            List<String> filesToCreate = filesOnServerResponse.getFiles();
+            filesToCreate.removeAll(localFiles);
+
+            printFilesToSynchronize(filesToCreate);
+            addAllFilesToQueue(filesToCreate);
+        }
+    }
+
     private void createDirectory(String directoryName) throws IOException {
         String path = Dictionary.CLIENTS_DIRECTORY + "/" + directoryName;
         Files.createDirectory(Paths.get(path));
+    }
+
+    private List<String> getLocalFiles() {
+        String directoryName = clientData.getDirectoryName();
+        String path = Dictionary.CLIENTS_DIRECTORY + "/" + directoryName;
+
+        File[] files = new File(path).listFiles();
+        List<String> localFiles = new ArrayList<>();
+
+        for (File file : Objects.requireNonNull(files)) {
+            localFiles.add(file.getName());
+        }
+
+        return localFiles;
+    }
+
+    private void addAllFilesToQueue(List<String> files) {
+        for (String file : files) {
+            String[] fileData = file.split("#");
+            String name = fileData[0];
+            String size = fileData[1].replace(".txt", "");
+            common.model.file.File aFile = new common.model.file.File(name, Integer.parseInt(size));
+            FileToProcess fileToProcess = new FileToProcess(clientData, aFile);
+            QueuedFiles.addFileToProcess(fileToProcess);
+        }
+    }
+
+    private void printFilesToSynchronize(List<String> files) {
+        System.out.println("Files to synchronize:");
+        for (String file : files) {
+            System.out.println(file);
+        }
     }
 }
