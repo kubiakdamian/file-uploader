@@ -2,6 +2,7 @@ package server.service;
 
 import common.model.Dictionary;
 import common.model.ServerResponse;
+import common.model.SignInServerResponse;
 import common.model.task.SignInUserTask;
 import common.model.task.SignUpUserTask;
 import common.model.task.Task;
@@ -44,7 +45,9 @@ public class TaskService {
         if (serverData.checkIfClientAlreadyExists(name)) {
             serverData.signInClient(name, clientSocket);
             clientUtils.setClientName(name);
-            clientUtils.sendResponse(ServerResponse.SUCCESSFUL_SIGN_IN);
+            Client clientByName = serverData.getClientByName(name);
+            SignInServerResponse signInServerResponse = new SignInServerResponse(clientByName.getDirectoryName());
+            clientUtils.sendSuccessfulSigningInResponse(signInServerResponse);
         } else {
             clientUtils.sendResponse(ServerResponse.FAILED_TO_SIGN_IN);
         }

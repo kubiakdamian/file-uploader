@@ -2,6 +2,7 @@ package server.client;
 
 import common.exception.FileUploaderException;
 import common.model.ServerResponse;
+import common.model.SignInServerResponse;
 import common.model.task.Task;
 import lombok.Getter;
 
@@ -25,6 +26,15 @@ public class ClientUtils {
     public void sendResponse(ServerResponse response) {
         try {
             output.writeObject(response);
+            output.flush();
+        } catch (IOException e) {
+            throw new FileUploaderException("Couldn't send task to server");
+        }
+    }
+
+    public void sendSuccessfulSigningInResponse(SignInServerResponse signInServerResponse) {
+        try {
+            output.writeObject(signInServerResponse);
             output.flush();
         } catch (IOException e) {
             throw new FileUploaderException("Couldn't send task to server");

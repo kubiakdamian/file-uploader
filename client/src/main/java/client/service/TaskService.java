@@ -4,6 +4,7 @@ import client.ClientData;
 import client.ClientListener;
 import common.model.Dictionary;
 import common.model.ServerResponse;
+import common.model.SignInServerResponse;
 import common.model.task.SignInUserTask;
 import common.model.task.SignOutUserTask;
 import common.model.task.SignUpUserTask;
@@ -31,10 +32,11 @@ public class TaskService {
         SignInUserTask task = new SignInUserTask(name);
         clientData.getServerUtils().sendTask(task);
 
-        ServerResponse serverResponse = clientData.getServerUtils().fetchServerResponse();
+        SignInServerResponse serverResponse = clientData.getServerUtils().fetchSignInServerResponse();
 
-        if (serverResponse == ServerResponse.SUCCESSFUL_SIGN_IN) {
+        if (serverResponse != null) {
             System.out.println(ServerResponse.SUCCESSFUL_SIGN_IN.getMessage());
+            clientData.setDirectoryName(serverResponse.getDirectoryName());
             clientListener.start(clientData);
             return true;
         } else {
