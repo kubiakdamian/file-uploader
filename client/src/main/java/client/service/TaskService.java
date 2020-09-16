@@ -5,6 +5,7 @@ import client.ClientListener;
 import common.model.Dictionary;
 import common.model.ServerResponse;
 import common.model.task.SignInUserTask;
+import common.model.task.SignOutUserTask;
 import common.model.task.SignUpUserTask;
 
 import java.io.BufferedReader;
@@ -43,8 +44,11 @@ public class TaskService {
     }
 
     public void signOut() {
-        //TODO signing out
-        System.out.println("Signing out...");
+        SignOutUserTask signOutUserTask = new SignOutUserTask();
+        clientData.getServerUtils().sendTask(signOutUserTask);
+
+        clientData.getServerUtils().closeConnection();
+        System.exit(0);
     }
 
     public void signUp() throws IOException {

@@ -23,7 +23,9 @@ public class ClientHandler extends Thread {
         try {
             while (true) {
                 Task request = clientUtils.fetchClientTask();
-                processRequest(request);
+                if (request != null) {
+                    processRequest(request);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -71,6 +73,10 @@ public class ClientHandler extends Thread {
 
             case GET_FILES:
                 taskService.getFiles(request);
+                break;
+
+            case SIGN_OUT_USER:
+                taskService.signOutUser();
                 break;
 
             default:

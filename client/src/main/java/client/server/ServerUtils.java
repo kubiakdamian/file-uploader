@@ -42,4 +42,14 @@ public class ServerUtils {
 
         return serverResponse;
     }
+
+    public void closeConnection() {
+        try {
+            input.close();
+            output.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

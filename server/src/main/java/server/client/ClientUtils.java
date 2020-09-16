@@ -32,12 +32,11 @@ public class ClientUtils {
     }
 
     public Task fetchClientTask() {
-        Task task;
+        Task task = null;
 
         try {
             task = (Task) input.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new FileUploaderException("Couldn't fetch server response");
+        } catch (IOException | ClassNotFoundException ignored) {
         }
 
         return task;
