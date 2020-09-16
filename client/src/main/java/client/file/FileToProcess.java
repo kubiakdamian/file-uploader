@@ -1,5 +1,7 @@
-package client;
+package client.file;
 
+import client.ClientData;
+import client.QueuedFiles;
 import common.model.Dictionary;
 import common.model.task.FilesSynchronizedTask;
 import lombok.Getter;

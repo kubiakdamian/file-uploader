@@ -2,8 +2,9 @@ package client.service;
 
 import client.ClientData;
 import client.ClientListener;
-import client.FileToProcess;
+import client.FilesToSend;
 import client.QueuedFiles;
+import client.file.FileToProcess;
 import common.model.Dictionary;
 import common.model.serverResponse.FilesOnServerResponse;
 import common.model.serverResponse.ServerResponse;
@@ -46,6 +47,7 @@ public class TaskService {
             System.out.println(ServerResponse.SUCCESSFUL_SIGN_IN.getMessage());
             clientData.setDirectoryName(serverResponse.getDirectoryName());
             clientListener.start(clientData);
+            synchronizeFilesOnSignIn();
             return true;
         } else {
             System.out.println("Something went wrong, please try again");
@@ -98,20 +100,23 @@ public class TaskService {
         }
     }
 
-    public void synchronizeFilesWithServer() {
+    public List<String> synchronizeFilesWithServer() {
         GetFilenamesTask getFilenamesTask = new GetFilenamesTask();
         clientData.getServerUtils().sendTask(getFilenamesTask);
         FilesOnServerResponse filesOnServerResponse = clientData.getServerUtils().fetchFilesFromServer();
+        List<String> serverFileNames = new ArrayList<>();
 
         if (filesOnServerResponse != null) {
             System.out.println("Synchronizing files with server. Please wait...");
             List<String> localFiles = getLocalFiles();
-            List<String> filesToCreate = filesOnServerResponse.getFiles();
-            filesToCreate.removeAll(localFiles);
+            serverFileNames = filesOnServerResponse.getFiles();
+            serverFileNames.removeAll(localFiles);
 
-            printFilesToSynchronize(filesToCreate);
-            addAllFilesToQueue(filesToCreate);
+            printFilesToSynchronize(serverFileNames);
+            addAllFilesToQueue(serverFileNames);
         }
+
+        return serverFileNames;
     }
 
     private void createDirectory(String directoryName) throws IOException {
@@ -148,6 +153,23 @@ public class TaskService {
         System.out.println("Files to synchronize:");
         for (String file : files) {
             System.out.println(file);
+        }
+    }
+
+    private void synchronizeFilesOnSignIn() {
+        List<String> serverFiles = synchronizeFilesWithServer();
+        List<String> localFiles = getLocalFiles();
+        localFiles.removeAll(serverFiles);
+
+        if (!localFiles.isEmpty()) {
+            for (String file : localFiles) {
+                String[] fileData = file.split("#");
+                String name = fileData[0];
+                String size = fileData[1].replace(".txt", "");
+                common.model.file.File aFile = new common.model.file.File(name, Integer.parseInt(size));
+                aFile.setType(common.model.file.File.Type.CREATE);
+                FilesToSend.addFile(aFile);
+            }
         }
     }
 }

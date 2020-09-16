@@ -1,5 +1,6 @@
 package client;
 
+import client.file.FileProcessingScheduler;
 import client.server.Server;
 import client.server.ServerConnection;
 

@@ -1,5 +1,7 @@
 package client;
 
+import client.file.FileToProcess;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 

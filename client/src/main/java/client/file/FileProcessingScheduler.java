@@ -1,5 +1,6 @@
-package client;
+package client.file;
 
+import client.QueuedFiles;
 import client.config.ClientConfig;
 
 public class FileProcessingScheduler extends Thread {
