@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 
 public class ServerInstance {
 
-    private final ExecutorService pool = Executors.newFixedThreadPool(4);
+    private final ExecutorService pool = Executors.newFixedThreadPool(3);
 
     public void start(String[] args) throws IOException {
         if (args.length < 1) return;
