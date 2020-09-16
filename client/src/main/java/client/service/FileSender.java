@@ -36,6 +36,9 @@ public class FileSender extends Thread {
         } else if (file.isDeleteType()) {
             DeleteFileTask deleteFileTask = new DeleteFileTask(file);
             clientData.getServerUtils().sendTask(deleteFileTask);
+            System.out.println("Sent task to delete file from server: " + file.getName());
+            ServerResponse serverResponse = clientData.getServerUtils().fetchServerResponse();
+            System.out.println(serverResponse.getMessage());
         }
     }
 }

@@ -8,7 +8,8 @@ public enum ServerResponse {
     FAILED_TO_SIGN_IN("Couldn't sign in"),
     FAILED_TO_SIGN_UP("Couldn't sign up"),
     FAILED_TO_SEND_FILE("Couldn't create file on server"),
-    FILE_SEND_SUCCESSFULLY("File sent to server successfully");
+    FILE_SENT_SUCCESSFULLY("File sent to server successfully"),
+    FILE_DELETED_SUCCESSFULLY("File deleted from server successfully");
 
     private String message;
 

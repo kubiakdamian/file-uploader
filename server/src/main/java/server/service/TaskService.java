@@ -86,7 +86,8 @@ public class TaskService {
     }
 
     public void deleteFile(Task taskData) {
-        System.out.println("Removing file...");
+        FileToProcess fileToProcess = new FileToProcess((TaskWithFile) taskData, clientUtils, serverData);
+        QueuedFiles.addFileToProcess(fileToProcess);
     }
 
     public void getFiles(Task taskData) {

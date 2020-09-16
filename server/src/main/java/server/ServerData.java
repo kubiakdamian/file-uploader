@@ -11,7 +11,6 @@ public class ServerData {
 
     private final Map<String, Client> signedUpClients = new HashMap<>();
     private final Map<String, Socket> signedInClients = new HashMap<>();
-    private int connectedClients = 0;
 
     public void signUpClient(String name, Client client) {
         signedUpClients.put(name, client);
@@ -51,8 +50,6 @@ public class ServerData {
 
     public void newClientConnected() {
         System.out.println("New client connected");
-        connectedClients++;
-        System.out.println("Currently connected clients: " + connectedClients);
     }
 
     public Client getClientByName(String name) {

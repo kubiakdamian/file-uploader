@@ -50,7 +50,7 @@ public class FileToProcess extends Thread {
         try {
             createFileOnServer();
             System.out.println("New file added: " + task.getFilename() + " client: " + clientUtils.getClientName());
-            clientUtils.sendResponse(ServerResponse.FILE_SEND_SUCCESSFULLY);
+            clientUtils.sendResponse(ServerResponse.FILE_SENT_SUCCESSFULLY);
             QueuedFiles.removeAlreadyProcessingFile(this);
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,14 +59,28 @@ public class FileToProcess extends Thread {
     }
 
     private void deleteFile() {
-
+        FileProcessingSimulator.process(this);
+        deleteFileFromServer();
+        System.out.println("File deleted: " + task.getFilename() + " client: " + clientUtils.getClientName());
+        clientUtils.sendResponse(ServerResponse.FILE_DELETED_SUCCESSFULLY);
+        QueuedFiles.removeAlreadyProcessingFile(this);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void createFileOnServer() throws IOException {
         Client client = serverData.getClientByName(clientUtils.getClientName());
         String clientDirectoryName = client.getDirectoryName();
         String filePathToCreate = Dictionary.SERVER_DIRECTORY + "/" + clientDirectoryName + "/" + task.getFilename() + ".txt";
         File file = new File(filePathToCreate);
         file.createNewFile();
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void deleteFileFromServer() {
+        Client client = serverData.getClientByName(clientUtils.getClientName());
+        String clientDirectoryName = client.getDirectoryName();
+        String filePathToDelete = Dictionary.SERVER_DIRECTORY + "/" + clientDirectoryName + "/" + task.getFilename() + ".txt";
+        File file = new File(filePathToDelete);
+        file.delete();
     }
 }
